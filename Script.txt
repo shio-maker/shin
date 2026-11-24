@@ -1,0 +1,1867 @@
+local a = {
+
+cache = {}::any,
+
+}
+
+
+
+do
+
+do
+
+local function __modImpl()
+
+local b = {}
+
+
+
+b.__index = b
+
+
+
+local function palette(c, d, e)
+
+return {
+
+accent = Color3.fromRGB(unpack(c)),
+
+accentTop = Color3.fromRGB(unpack(d)),
+
+accentDepth = Color3.fromRGB(unpack(e)),
+
+accentText = Color3.fromRGB(16, 45, 64),
+
+panel = Color3.fromRGB(42, 50, 62),
+
+surface = Color3.fromRGB(48, 60, 75),
+
+sidebar = Color3.fromRGB(29, 38, 51),
+
+inset = Color3.fromRGB(25, 35, 49),
+
+outline = Color3.fromRGB(11, 16, 23),
+
+text = Color3.fromRGB(237, 244, 252),
+
+muted = Color3.fromRGB(165, 182, 202),
+
+on = Color3.fromRGB(27, 103, 74),
+
+off = Color3.fromRGB(25, 36, 50),
+
+knob = Color3.fromRGB(129, 230, 172),
+
+danger = Color3.fromRGB(239, 85, 81),
+
+white = Color3.fromRGB(255, 255, 255),
+
+}
+
+end
+
+
+
+local c = {
+
+['Cyan Stud'] = palette({64, 188, 240}, {123, 219, 255}, {24, 113, 155}),
+
+['Gold Stud'] = palette({231, 172, 41}, {255, 224, 138}, {150, 103, 24}),
+
+}
+
+
+
+function b.new(d)
+
+return setmetatable({
+
+name = c[d] and d or 'Cyan Stud',
+
+bindings = {},
+
+alive = true,
+
+}, b)
+
+end
+
+function b.GetName(d)
+
+return d.name
+
+end
+
+function b.Bind(d, e, f, g)
+
+if not d.alive then
+
+return
+
+end
+
+
+
+assert(c[d.name][g], 'unknown theme token ' .. g)
+
+
+
+local h = d.bindings[e]
+
+
+
+if not h then
+
+h = {}
+
+d.bindings[e] = h
+
+end
+
+
+
+h[f] = g
+
+e[f] = c[d.name][g]
+
+end
+
+function b.Forget(d, e)
+
+d.bindings[e] = nil
+
+
+
+for f, g in ipairs(e:GetDescendants())do
+
+d.bindings[g] = nil
+
+end
+
+end
+
+function b.Set(d, e)
+
+if not d.alive or not c[e] then
+
+return false
+
+end
+
+
+
+d.name = e
+
+
+
+for f, g in pairs(d.bindings)do
+
+for h, i in pairs(g)do
+
+f[h] = c[e][i]
+
+end
+
+end
+
+
+
+return true
+
+end
+
+function b.Destroy(d)
+
+d.alive = false
+
+
+
+table.clear(d.bindings)
+
+end
+
+
+
+return b
+
+end
+
+
+
+function a.a(): typeof(__modImpl())
+
+local b = a.cache.a
+
+
+
+if not b then
+
+b = {
+
+c = __modImpl(),
+
+}
+
+a.cache.a = b
+
+end
+
+
+
+return b.c
+
+end
+
+end
+
+do
+
+local function __modImpl()
+
+local b = {}
+
+
+
+local function stack(c, d, e)
+
+c:Make('UIListLayout', d, {
+
+Padding = UDim.new(0, e or 0),
+
+SortOrder = Enum.SortOrder.LayoutOrder,
+
+})
+
+end
+
+local function row(c, d, e, f)
+
+local g = c:Make('Frame', d, {
+
+Name = 'Row_' .. e.Title,
+
+Size = UDim2.new(1, 0, 0, 0),
+
+AutomaticSize = Enum.AutomaticSize.Y,
+
+}, 'surface')
+
+local h = c:Make('Frame', g, {
+
+BackgroundTransparency = 1,
+
+Position = UDim2.fromOffset(12, 10),
+
+Size = UDim2.new(1, -(f or 0) - 24, 0, 0),
+
+AutomaticSize = Enum.AutomaticSize.Y,
+
+})
+
+
+
+stack(c, h, 3)
+
+c:Text(h, e.Title, {
+
+Size = UDim2.new(1, 0, 0, 20),
+
+AutomaticSize = Enum.AutomaticSize.Y,
+
+TextSize = 13,
+
+})
+
+
+
+local i = c:Text(h, e.Desc or '', {
+
+Name = 'Description_' .. e.Title,
+
+Size = UDim2.new(1, 0, 0, 0),
+
+AutomaticSize = Enum.AutomaticSize.Y,
+
+TextSize = 11,
+
+}, 'muted')
+
+
+
+c:Make('UIPadding', g, {
+
+PaddingBottom = UDim.new(0, 10),
+
+})
+
+
+
+return g, i
+
+end
+
+
+
+function b.paragraph(c, d, e)
+
+local f, g = row(c, d, e)
+
+
+
+return {
+
+SetDesc = function(h, i)
+
+if c.alive then
+
+g.Text = i
+
+end
+
+end,
+
+}
+
+end
+
+function b.button(c, d, e)
+
+local f = row(c, d, e, 72)
+
+local g = c:Make('TextButton', f, {
+
+Name = 'Button_' .. e.Title,
+
+Text = 'GO',
+
+Font = Enum.Font.GothamBlack,
+
+TextSize = 12,
+
+Size = UDim2.fromOffset(56, 30),
+
+Position = UDim2.new(1, -68, 0, 11),
+
+AutoButtonColor = false,
+
+}, 'accent')
+
+
+
+c.theme:Bind(g, 'TextColor3', 'accentText')
+
+c:Outline(g, 2)
+
+c:Listen(g.Activated, function()
+
+if e.Callback then
+
+e.Callback()
+
+end
+
+end)
+
+
+
+return g
+
+end
+
+
+
+local function toggle(c, d, e)
+
+local f = row(c, d, e, 75)
+
+local g = c:Make('TextButton', f, {
+
+Name = 'Toggle_' .. e.Title,
+
+Text = '',
+
+TextSize = 10,
+
+Font = Enum.Font.GothamBlack,
+
+Size = UDim2.fromOffset(62, 28),
+
+Position = UDim2.new(1, -74, 0, 12),
+
+AutoButtonColor = false,
+
+}, 'off')
+
+
+
+c.theme:Bind(g, 'TextColor3', 'text')
+
+c:Outline(g, 2)
+
+
+
+local h = c:Make('Frame', g, {
+
+Name = 'Knob',
+
+Size = UDim2.fromOffset(12, 18),
+
+Position = UDim2.fromOffset(4, 5),
+
+}, 'muted')
+
+local i = c:Text(g, '', {
+
+Name = 'ToggleState_' .. e.Title,
+
+Position = UDim2.fromOffset(20, 0),
+
+Size = UDim2.new(0, 38, 1, 0),
+
+TextSize = 10,
+
+TextXAlignment = Enum.TextXAlignment.Center,
+
+TextWrapped = false,
+
+})
+
+local j = e.Value == true
+
+local k = {}
+
+
+
+local function render()
+
+i.Text = j and 'ON' or 'OFF'
+
+i.Position = UDim2.fromOffset(j and 4 or 20, 0)
+
+
+
+c.theme:Bind(g, 'BackgroundColor3', j and 'on' or 'off')
+
+c.theme:Bind(h, 'BackgroundColor3', j and 'knob' or 'muted')
+
+
+
+h.Position = UDim2.fromOffset(j and 46 or 4, 5)
+
+end
+
+
+
+function k.Get(l)
+
+return j
+
+end
+
+function k.Set(l, m, n)
+
+if not c.alive then
+
+return
+
+end
+
+
+
+m = m == true
+
+
+
+if j == m then
+
+return
+
+end
+
+
+
+j = m
+
+
+
+render()
+
+
+
+if n and e.Callback then
+
+e.Callback(j)
+
+end
+
+end
+
+
+
+c:Listen(g.Activated, function()
+
+k:Set(not j, true)
+
+end)
+
+render()
+
+
+
+return k
+
+end
+
+local function dropdown(c, d, e)
+
+local f = row(c, d, e, 184)
+
+local g = c:Make('TextButton', f, {
+
+Name = 'Dropdown_' .. e.Title,
+
+Text = '',
+
+TextSize = 11,
+
+Font = Enum.Font.GothamBold,
+
+Size = UDim2.fromOffset(164, 32),
+
+Position = UDim2.new(1, -176, 0, 11),
+
+TextTruncate = Enum.TextTruncate.AtEnd,
+
+AutoButtonColor = false,
+
+}, 'inset')
+
+
+
+c.theme:Bind(g, 'TextColor3', 'text')
+
+c:Outline(g, 2)
+
+
+
+local h = e.Value
+
+local i = {}
+
+
+
+for j, k in ipairs(e.Values)do
+
+i[k] = true
+
+end
+
+
+
+if not i[h] then
+
+h = e.Values[1]
+
+end
+
+
+
+local j = {}
+
+
+
+function j.Get(k)
+
+return h
+
+end
+
+function j.Set(k, l, m)
+
+if not c.alive or not i[l] or h == l then
+
+return
+
+end
+
+
+
+h = l
+
+g.Text = tostring(h)
+
+
+
+if m and e.Callback then
+
+e.Callback(h)
+
+end
+
+end
+
+
+
+g.Text = tostring(h)
+
+
+
+c:Make('UIPadding', g, {
+
+PaddingLeft = UDim.new(0, 9),
+
+PaddingRight = UDim.new(0, 26),
+
+})
+
+
+
+local k = c:Make('Frame', g, {
+
+Name = 'DropdownArrow',
+
+BackgroundTransparency = 1,
+
+AnchorPoint = Vector2.new(1, 0.5),
+
+Position = UDim2.new(1, 16, 0.5, 0),
+
+Size = UDim2.fromOffset(10, 8),
+
+})
+
+
+
+for l, m in ipairs{
+
+45,
+
+-45,
+
+}do
+
+c:Make('Frame', k, {
+
+Size = UDim2.fromOffset(6, 2),
+
+Position = UDim2.fromOffset((l - 1) * 4, 3),
+
+Rotation = m,
+
+}, 'muted')
+
+end
+
+
+
+c:Listen(g.Activated, function()
+
+c:CloseOverlay()
+
+
+
+c.overlay.Visible = true
+
+
+
+local l = c:Make('TextButton', c.overlay, {
+
+Name = 'OverlayDismiss',
+
+Text = '',
+
+BackgroundTransparency = 1,
+
+Size = UDim2.fromScale(1, 1),
+
+})
+
+local m = c.viewport
+
+local n, o = math.min(240, m.X - 16), math.min(260, m.Y - 16)
+
+local p = g.AbsolutePosition
+
+local q = math.clamp(p.X, 8, math.max(8, m.X - n - 8))
+
+local r = math.clamp(p.Y + g.AbsoluteSize.Y + 4, 8, math.max(8, m.Y - o - 8))
+
+local s = c:Make('ScrollingFrame', c.overlay, {
+
+Name = 'DropdownOptions',
+
+Position = UDim2.fromOffset(q, r),
+
+Size = UDim2.fromOffset(n, o),
+
+CanvasSize = UDim2.fromOffset(0, 0),
+
+AutomaticCanvasSize = Enum.AutomaticSize.Y,
+
+ScrollBarThickness = 5,
+
+ScrollingDirection = Enum.ScrollingDirection.Y,
+
+}, 'inset')
+
+
+
+c:Outline(s, 2)
+
+stack(c, s, 2)
+
+
+
+local t = {}
+
+
+
+local function connect(u, v)
+
+local w = u:Connect(function(...)
+
+if c.alive then
+
+v(...)
+
+end
+
+end)
+
+
+
+table.insert(t, w)
+
+end
+
+
+
+c.closeOverlay = function()
+
+for u, v in ipairs(t)do
+
+v:Disconnect()
+
+end
+
+
+
+c.theme:Forget(s)
+
+s:Destroy()
+
+l:Destroy()
+
+end
+
+
+
+connect(l.Activated, function()
+
+c:CloseOverlay()
+
+end)
+
+
+
+for u, v in ipairs(e.Values)do
+
+local w = c:Make('TextButton', s, {
+
+Name = 'Option_' .. tostring(v),
+
+Text = tostring(v),
+
+Font = Enum.Font.GothamBold,
+
+TextSize = 12,
+
+Size = UDim2.new(1, -6, 0, 34),
+
+AutoButtonColor = false,
+
+TextWrapped = true,
+
+}, v == h and 'accent' or 'surface')
+
+
+
+c.theme:Bind(w, 'TextColor3', v == h and 'accentText' or 'text')
+
+connect(w.Activated, function()
+
+j:Set(v, true)
+
+c:CloseOverlay()
+
+end)
+
+end
+
+end)
+
+
+
+return j
+
+end
+
+local function keybind(c, d, e)
+
+local f = row(c, d, e, 184)
+
+local g = c:Make('TextButton', f, {
+
+Name = 'Keybind_' .. e.Title,
+
+Text = '',
+
+TextSize = 11,
+
+Font = Enum.Font.GothamBold,
+
+Size = UDim2.fromOffset(164, 32),
+
+Position = UDim2.new(1, -176, 0, 11),
+
+AutoButtonColor = false,
+
+}, 'inset')
+
+
+
+c:Outline(g, 2)
+
+
+
+local h, i = e.Value, false
+
+
+
+local function render()
+
+if not c.alive then
+
+return
+
+end
+
+
+
+g.Text = i and 'Press a key...' or h
+
+
+
+c.theme:Bind(g, 'BackgroundColor3', i and 'accent' or 'inset')
+
+c.theme:Bind(g, 'TextColor3', i and 'accentText' or 'text')
+
+end
+
+
+
+local j = {}
+
+
+
+function j.Get(k)
+
+return h
+
+end
+
+function j.Set(k, l, m)
+
+if not c.alive or h == l then
+
+return
+
+end
+
+
+
+h = l
+
+
+
+render()
+
+
+
+if m and e.Callback then
+
+e.Callback(h)
+
+end
+
+end
+
+
+
+c:Listen(g.Activated, function()
+
+local k = c:BeginKeyCapture(function(k)
+
+i = false
+
+
+
+j:Set(k, true)
+
+render()
+
+end, function()
+
+i = false
+
+
+
+render()
+
+end)
+
+
+
+i = k == true
+
+
+
+render()
+
+end)
+
+render()
+
+
+
+return j
+
+end
+
+local function slider(c, d, e)
+
+local f = c:Make('Frame', d, {
+
+Name = 'Row_' .. e.Title,
+
+Size = UDim2.new(1, 0, 0, 100),
+
+}, 'surface')
+
+
+
+c:Text(f, e.Title, {
+
+Position = UDim2.fromOffset(12, 7),
+
+Size = UDim2.new(1, -100, 0, 22),
+
+})
+
+
+
+local g = c:Text(f, '', {
+
+Name = 'SliderValue',
+
+Position = UDim2.new(1, -90, 0, 7),
+
+Size = UDim2.fromOffset(76, 22),
+
+TextXAlignment = Enum.TextXAlignment.Right,
+
+}, 'accentTop')
+
+
+
+c:Text(f, e.Desc or '', {
+
+Name = 'Description_' .. e.Title,
+
+Position = UDim2.fromOffset(12, 32),
+
+Size = UDim2.new(1, -24, 0, 30),
+
+TextSize = 11,
+
+}, 'muted')
+
+
+
+local h = c:Make('Frame', f, {
+
+Name = 'Slider_' .. e.Title,
+
+Active = true,
+
+Position = UDim2.fromOffset(12, 71),
+
+Size = UDim2.new(1, -24, 0, 15),
+
+}, 'inset')
+
+
+
+c:Outline(h, 1)
+
+
+
+local i = c:Make('Frame', h, {
+
+Name = 'Fill',
+
+Size = UDim2.fromScale(0, 1),
+
+}, 'accent')
+
+local j = c:Make('Frame', h, {
+
+Name = 'Knob',
+
+Size = UDim2.fromOffset(12, 23),
+
+AnchorPoint = Vector2.new(0.5, 0.5),
+
+Position = UDim2.fromScale(0, 0.5),
+
+}, 'accentTop')
+
+
+
+c:Outline(j, 2)
+
+
+
+local function normalize(k)
+
+return math.clamp(e.Min + math.floor((math.clamp(k, e.Min, e.Max) - e.Min) / e.Step + 0.5) * e.Step, e.Min, e.Max)
+
+end
+
+
+
+local k = normalize(e.Value)
+
+
+
+local function render()
+
+local l = (k - e.Min) / (e.Max - e.Min)
+
+
+
+i.Size = UDim2.fromScale(l, 1)
+
+j.Position = UDim2.fromScale(l, 0.5)
+
+
+
+local m = 0
+
+
+
+while m < 6 and math.abs(e.Step * 10 ^ m - math.round(e.Step * 10 ^ m)) > 0.000001 do
+
+m += 1
+
+end
+
+
+
+g.Text = string.format('%.' .. m .. 'f', k)
+
+end
+
+
+
+local l = {}
+
+
+
+function l.Get(m)
+
+return k
+
+end
+
+function l.Set(m, n, o)
+
+if not c.alive or type(n) ~= 'number' or n ~= n then
+
+return
+
+end
+
+
+
+local p = normalize(n)
+
+
+
+if math.abs(p - k) < 0.000001 then
+
+return
+
+end
+
+
+
+k = p
+
+
+
+render()
+
+
+
+if o and e.Callback then
+
+e.Callback(k)
+
+end
+
+end
+
+
+
+c:Listen(h.InputBegan, function(m)
+
+if m.UserInputType ~= Enum.UserInputType.MouseButton1 and m.UserInputType ~= Enum.UserInputType.Touch then
+
+return
+
+end
+
+
+
+local function move(n)
+
+local o = math.clamp((n.Position.X - h.AbsolutePosition.X) / math.max(1, h.AbsoluteSize.X), 0, 1)
+
+
+
+l:Set(e.Min + o * (e.Max - e.Min), true)
+
+end
+
+
+
+move(m)
+
+c:Capture(m, move)
+
+end)
+
+render()
+
+
+
+return l
+
+end
+
+
+
+function b.section(c, d, e)
+
+local f = c:Make('Frame', d, {
+
+Name = 'Section_' .. e.Title,
+
+Size = UDim2.new(1, -4, 0, 0),
+
+AutomaticSize = Enum.AutomaticSize.Y,
+
+}, 'inset')
+
+
+
+c:Outline(f, 2)
+
+stack(c, f, 1)
+
+
+
+local g = c:Make('Frame', f, {
+
+Size = UDim2.new(1, 0, 0, 34),
+
+}, 'sidebar')
+
+
+
+c:Make('Frame', g, {
+
+Position = UDim2.fromOffset(12, 11),
+
+Size = UDim2.fromOffset(4, 12),
+
+}, 'accent')
+
+c:Text(g, string.upper(e.Title), {
+
+Position = UDim2.fromOffset(24, 0),
+
+Size = UDim2.new(1, -36, 1, 0),
+
+TextSize = 11,
+
+})
+
+
+
+local h = {}
+
+
+
+function h.Paragraph(i, j)
+
+return b.paragraph(c, f, j)
+
+end
+
+function h.Button(i, j)
+
+return b.button(c, f, j)
+
+end
+
+function h.Toggle(i, j)
+
+return toggle(c, f, j)
+
+end
+
+function h.Dropdown(i, j)
+
+return dropdown(c, f, j)
+
+end
+
+function h.Keybind(i, j)
+
+return keybind(c, f, j)
+
+end
+
+function h.Slider(i, j)
+
+return slider(c, f, j)
+
+end
+
+
+
+return h
+
+end
+
+
+
+return b
+
+end
+
+
+
+function a.b(): typeof(__modImpl())
+
+local b = a.cache.b
+
+
+
+if not b then
+
+b = {
+
+c = __modImpl(),
+
+}
+
+a.cache.b = b
+
+end
+
+
+
+return b.c
+
+end
+
+end
+
+do
+
+local function __modImpl()
+
+local b = a.a()
+
+local c = {}
+
+
+
+c.__index = c
+
+
+
+local function pointer(d)
+
+return d.UserInputType == Enum.UserInputType.MouseButton1 or d.UserInputType == Enum.UserInputType.Touch
+
+end
+
+
+
+function c.new(d)
+
+d = d or {}
+
+
+
+local e = setmetatable({
+
+alive = true,
+
+connections = {},
+
+tabs = {},
+
+floatingEnabled = true,
+
+visible = true,
+
+consumedKeys = setmetatable({}, {
+
+__mode = 'k',
+
+}),
+
+key = d.ToggleKey or Enum.KeyCode.RightShift,
+
+theme = b.new(d.Theme),
+
+}, c)
+
+
+
+e.input = game:GetService'UserInputService'
+
+e.world = game:GetService'Workspace'
+
+
+
+local f = d.Parent
+
+
+
+if not f then
+
+local g, h = pcall(function()
+
+return game:GetService'CoreGui'
+
+end)
+
+
+
+if g then
+
+f = h
+
+end
+
+end
+
+
+
+local g = Instance.new'ScreenGui'
+
+
+
+g.Name = 'NKS_StudUI'
+
+g.ResetOnSpawn = false
+
+g.IgnoreGuiInset = true
+
+g.DisplayOrder = 100
+
+g.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+
+
+local h = pcall(function()
+
+g.Parent = f
+
+end)
+
+
+
+if not h or not f then
+
+g.Parent = game:GetService'Players'.LocalPlayer:FindFirstChildOfClass'PlayerGui'
+
+end
+
+
+
+e.gui = g
+
+e.panel = e:Make('Frame', g, {
+
+Name = 'Panel',
+
+Size = UDim2.fromOffset(820, 560),
+
+}, 'panel')
+
+
+
+e:Outline(e.panel, 3)
+
+
+
+e.scale = e:Make('UIScale', e.panel, {
+
+Name = 'WindowScale',
+
+Scale = 1,
+
+})
+
+e.header = e:Make('Frame', e.panel, {
+
+Name = 'Header',
+
+Size = UDim2.new(1, 0, 0, 72),
+
+Active = true,
+
+}, 'accent')
+
+
+
+e:Studs(e.header, 31)
+
+e:Make('Frame', e.header, {
+
+Name = 'Lip',
+
+Position = UDim2.new(0, 0, 1, -7),
+
+Size = UDim2.new(1, 0, 0, 7),
+
+}, 'accentDepth')
+
+e:Text(e.header, 'NKS', {
+
+Name = 'Brand',
+
+Position = UDim2.fromOffset(20, 5),
+
+Size = UDim2.fromOffset(100, 54),
+
+TextSize = 40,
+
+Font = Enum.Font.GothamBlack,
+
+TextStrokeTransparency = 0.2,
+
+})
+
+e:Text(e.header, 'EVADE / UTILITY\nSTUD EDITION', {
+
+Position = UDim2.fromOffset(123, 15),
+
+Size = UDim2.fromOffset(230, 40),
+
+TextSize = 12,
+
+}, 'accentText')
+
+
+
+local function headerButton(i, j, k, l)
+
+local m = e:Make('TextButton', e.header, {
+
+Name = i,
+
+Text = '',
+
+Size = UDim2.new(0, 46, 1, 0),
+
+Position = UDim2.new(1, j, 0, 0),
+
+AutoButtonColor = false,
+
+}, k)
+
+
+
+e:Make('Frame', m, {
+
+Name = 'ButtonLip',
+
+Position = UDim2.new(0, 0, 1, -7),
+
+Size = UDim2.new(1, 0, 0, 7),
+
+BackgroundTransparency = 0.78,
+
+}, 'outline')
+
+e:Make('Frame', m, {
+
+Name = 'ButtonRim',
+
+Size = UDim2.new(1, 0, 0, 2),
+
+BackgroundTransparency = 0.65,
+
+}, 'white')
+
+
+
+local n = e:Make('Frame', m, {
+
+Name = 'Icon',
+
+BackgroundTransparency = 1,
+
+AnchorPoint = Vector2.new(0.5, 0.5),
+
+Position = UDim2.new(0.5, 0, 0.5, -3),
+
+Size = UDim2.fromOffset(16, 16),
+
+})
+
+
+
+if i == 'ThemeCycle' then
+
+local o = e:Make('Frame', n, {
+
+Size = UDim2.fromOffset(14, 14),
+
+Position = UDim2.fromOffset(1, 1),
+
+}, 'white')
+
+
+
+e:Outline(o, 1)
+
+e:Make('Frame', o, {
+
+Size = UDim2.new(0.5, 0, 1, 0),
+
+}, 'accentText')
+
+else
+
+local o = e:Make('Frame', n, {
+
+AnchorPoint = Vector2.new(0.5, 0.5),
+
+Position = UDim2.fromScale(0.5, 0.5),
+
+Size = UDim2.fromOffset(14, 3),
+
+Rotation = i == 'Close' and 45 or 0,
+
+}, 'white')
+
+
+
+if i == 'Close' then
+
+e:Make('Frame', n, {
+
+AnchorPoint = o.AnchorPoint,
+
+Position = o.Position,
+
+Size = o.Size,
+
+Rotation = -45,
+
+}, 'white')
+
+end
+
+end
+
+
+
+e.theme:Bind(m, 'TextColor3', 'white')
+
+e:Outline(m, 2)
+
+e:Listen(m.Activated, l)
+
+
+
+return m
+
+end
+
+
+
+headerButton('ThemeCycle', -138, 'accentDepth', function()
+
+if e.themeCycle then
+
+e.themeCycle()
+
+end
+
+end)
+
+headerButton('Minimize', -92, 'accentDepth', function()
+
+e:SetVisible(false)
+
+end)
+
+headerButton('Close', -46, 'danger', function()
+
+e:SetVisible(false)
+
+end)
+
+
+
+e.sidebar = e:Make('Frame', e.panel, {
+
+Name = 'Sidebar',
+
+Position = UDim2.fromOffset(0, 72),
+
+Size = UDim2.new(0, 172, 1, -104),
+
+}, 'sidebar')
+
+
+
+e:Text(e.sidebar, 'YOUR WORKSPACE', {
+
+Position = UDim2.fromOffset(17, 14),
+
+Size = UDim2.fromOffset(140, 20),
+
+TextSize = 10,
+
+}, 'muted')
+
+e:Text(e.sidebar, game:GetService'Players'.LocalPlayer.Name, {
+
+Position = UDim2.new(0, 17, 1, -65),
+
+Size = UDim2.fromOffset(140, 20),
+
+TextSize = 12,
+
+})
+
+
+
+e.keyLabel = e:Text(e.sidebar, '', {
+
+Position = UDim2.new(0, 17, 1, -42),
+
+Size = UDim2.fromOffset(145, 32),
+
+TextSize = 10,
+
+}, 'muted')
+
+e.content = e:Make('Frame', e.panel, {
+
+Name = 'Content',
+
+BackgroundTransparency = 1,
+
+Position = UDim2.fromOffset(172, 72),
+
+Size = UDim2.new(1, -172, 1, -104),
+
+})
+
+e.statusBar = e:Make('Frame', e.panel, {
+
+Name = 'StatusBar',
+
+Position = UDim2.new(0, 0, 1, -32),
+
+Size = UDim2.new(1, 0, 0, 32),
+
+}, 'inset')
+
+e.statusLabel = e:Text(e.statusBar, 'Ready \u{b7} all features off', {
+
+Position = UDim2.fromOffset(12, 0),
+
+Size = UDim2.new(1, -24, 1, 0),
+
+TextSize = 11,
+
+}, 'muted')
+
+e.floating = e:Make('TextButton', g, {
+
+Name = 'FloatingN',
+
+Text = 'N',
+
+Font = Enum.Font.GothamBlack,
+
+TextSize = 26,
+
+Size = UDim2.fromOffset(48, 48),
+
+Position = UDim2.fromOffset(20, 180),
+
+Visible = false,
+
+AutoButtonColor = false,
+
+}, 'accent')
+
+
+
+e.theme:Bind(e.floating, 'TextColor3', 'white')
+
+e:Outline(e.floating, 3)
+
+
+
+e.overlay = e:Make('Frame', g, {
+
+Name = 'Overlay',
+
+Size = UDim2.fromScale(1, 1),
+
+BackgroundTransparency = 1,
+
+ZIndex = 20,
+
+Visible = false,
+
+})
+
+
+
+e:Listen(e.floating.Activated, function()
+
+if not e.suppressFloatingClick then
+
+e:SetVisible(true)
+
+end
+
+end)
+
+e:Listen(e.header.InputBegan, function(i)
+
+e:BeginDrag(i, e.panel)
+
+end)
+
+e:Listen(e.floating.InputBegan, function(i)
+
+e:BeginDrag(i, e.floating)
+
+end)
+
+e:Listen(e.input.InputBegan, function(i, j)
+
+local k = e:ShouldSuppressShortcut(i)
+
+
+
+if e.keyCapture then
+
+if i.UserInputType ~= Enum.UserInputType.Keyboard then
+
+return
+
+end
+
+if i.KeyCode == Enum.KeyCode.Escape then
+
+e:CancelKeyCapture()
+
+
+
+return
+
+end
+
+if j or e.input:GetFocusedTextBox() or i.KeyCode == Enum.KeyCode.Unknown then
+
+return
+
+end
+
+
+
+local l = e.keyCapture
+
+
+
+e.keyCapture = nil
+
+
+
+l.onKey(i.KeyCode.Name)
+
+
+
+return
+
+end
+
+if k then
+
+return
+
+end
+
+if j or e.input:GetFocusedTextBox() then
+
+return
+
+end
+
+if i.UserInputType == Enum.UserInputType.Keyboard and i.KeyCode == e.key then
+
+e:SetVisible(not e.visible)
+
+end
+
+end)
+
+e:Listen(e.input.InputChanged, function(i)
+
+if e.capture then
+
+if i == e.capture.input or (e.capture.input.UserInputType == Enum.UserInputType.MouseButton1 and i.UserInputType == Enum.UserInputType.MouseMovement) then
+
+e.capture.move(i)
+
+end
+
+end
+
+end)
+
+e:Listen(e.input.InputEnded, function(i)
+
+e.consumedKeys[i] = nil
+
+
+
+if e.capture and (i == e.capture.input or (i.UserInputType == Enum.UserInputType.MouseButton1 and e.cap
